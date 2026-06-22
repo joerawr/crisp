@@ -18,7 +18,8 @@ function getFallbackInstructions(level) {
     'Code comments scale the same way: L5 explain non-obvious why, down to L1 rare and surgical.\n\n' +
     'Humanizer floor, every level: no em/en dashes, no rule of three, no AI-vocab clusters ' +
     '(delve, leverage, crucial, robust, seamless, underscore, tapestry), no signposting, no sycophancy, ' +
-    'no negative parallelism or tailing-negation fragments. Vary rhythm. Concrete over abstract. Write clean first time.\n\n' +
+    'no process narration ("I have enough", "here is"), ' +
+    'no negative parallelism or tailing-negation fragments. Vary rhythm. Concrete over abstract. Write clean first time. L5 ~40 is a ceiling, do not pad.\n\n' +
     'Safety carve-out overrides the dial at every level: never compress security warnings, mandated inline ' +
     'edge-case/SECURITY-REVIEW comments, correctness caveats, or risk/blocker/assumption flags. Correctness outranks concision.\n\n' +
     'Govern prose and comments, not architecture. Follow silently; do not narrate the level.';
