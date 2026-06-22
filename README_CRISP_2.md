@@ -33,7 +33,7 @@ A humanizer floor runs at every level and strips AI writing tells. A safety carv
 
 ## Config
 
-- `CRISP_DEFAULT_LEVEL` env var, or `~/.config/crisp/config.json`, sets the startup default.
+- `CRISP_DEFAULT_LEVEL` env var sets the startup default.
 - Statusline shows `[CRISP:n]`.
 
 ## Lineage

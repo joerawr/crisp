@@ -39,7 +39,7 @@ One rule sits above everything, including level 1: never compress a security war
 
 - `/crisp 1|2|3|4|5` sets the level for the session.
 - `/crisp off`, `stop crisp`, or `normal mode` turns it off.
-- Set the default with `CRISP_DEFAULT_LEVEL` or `~/.config/crisp/config.json`: `{ "defaultLevel": "2" }`.
+- Set the default with the `CRISP_DEFAULT_LEVEL` env var.
 - The statusline shows `[CRISP:n]`.
 
 ## Inspirations

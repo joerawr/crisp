@@ -30,7 +30,7 @@ One thing the dial never touches. Security warnings, correctness caveats, and ri
 ## Usage
 
 - `/crisp 1-5` set the level, `/crisp off` to stop (also "stop crisp", "normal mode")
-- Default via `CRISP_DEFAULT_LEVEL` env var or `~/.config/crisp/config.json`
+- Default via `CRISP_DEFAULT_LEVEL` env var
 - Statusline shows `[CRISP:n]`
 
 A SessionStart hook injects the ruleset and writes a flag; a UserPromptSubmit hook tracks `/crisp n`.

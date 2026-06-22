@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { getClaudeDir, normalizeLevel, DEFAULT_LEVEL } = require('./crisp-config');
+const { getClaudeDir, normalizeLevel } = require('./crisp-config');
 
 const STATE_FILE = '.crisp-active';
 const PENDING_FILE = '.crisp-pending';
@@ -41,7 +41,6 @@ function writeBlock(reason) {
 }
 
 module.exports = {
-  statePath, pendingPath, DEFAULT_LEVEL,
   setLevel, clearLevel, readLevel,
   setPending, clearPending, isPending,
   writeHookOutput, writeBlock,

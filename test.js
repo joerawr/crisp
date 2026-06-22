@@ -16,7 +16,7 @@ const { getCrispInstructions } = require('./hooks/crisp-instructions');
 
 // --- config ---
 assert.strictEqual(normalizeLevel('3'), '3');
-assert.strictEqual(normalizeLevel(2), '2');
+assert.strictEqual(normalizeLevel(2), null); // numeric input not accepted; commands pass strings
 assert.strictEqual(normalizeLevel(' 5 '), '5');
 assert.strictEqual(normalizeLevel('OFF'), 'off');
 assert.strictEqual(normalizeLevel('6'), null);

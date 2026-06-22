@@ -92,19 +92,13 @@ The statusline shows the active level as `[CRISP:n]` so you always know where th
 
 ## Config
 
-Set a default so every session starts where you want it:
+Set a default so every session starts where you want it. Put this in your shell profile:
 
 ```bash
 export CRISP_DEFAULT_LEVEL=2
 ```
 
-Or in `~/.config/crisp/config.json`:
-
-```json
-{ "defaultLevel": "2" }
-```
-
-Absent either, the default is 3.
+Absent that, the default is 3.
 
 ## Install
 
