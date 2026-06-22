@@ -8,7 +8,7 @@ Crisp is a verbosity dial for Claude Code. It exists because the default agent,
 even with a careful CLAUDE.md asking for concision, tends to drift long: it
 restates points, hedges, pads code comments to eight lines where two would do,
 and reaches for the same inflated vocabulary. A static instruction file cannot
-fix this reliably, because there is no single right verbosity. A architecture
+fix this reliably, because there is no single right verbosity. An architecture
 review wants full reasoning; a quick command lookup wants one line. What is
 missing is a knob you can turn per session.
 
