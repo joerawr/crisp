@@ -1,0 +1,9 @@
+{
+  "name": "crisp",
+  "version": "0.1.0",
+  "description": "Verbosity dial 1-5 for agent prose, MR descriptions, and code comments. Lower says less. Clean human English, always-on humanizer floor, safety never compressed.",
+  "author": {
+    "name": "Joe Rogers"
+  },
+  "hooks": "./hooks/crisp-hooks.json"
+}

@@ -1,0 +1,3 @@
+description = "Set verbosity level (1-5, or off). Lower says less. 3 is default."
+argument-hint = "[1|2|3|4|5|off]"
+prompt = "Set crisp verbosity to level {{args}} (1-5; if no number given, use 3). Lower means say less. Lead with the answer, surface only the load-bearing reasoning the level allows, and scale code comments the same way. Stay clean human English, not caveman. The always-on humanizer floor (no em/en dashes, no rule of three, no AI-vocab clusters, no signposting or sycophancy) and the safety carve-out (never compress security warnings, correctness caveats, risk/blocker flags, or mandated inline comments) apply at every level. Do not narrate the level; just write at it."

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "crisp",
+  "description": "Verbosity dial for AI agents. Say what is necessary, in clean human English.",
+  "owner": {
+    "name": "Joe Rogers"
+  },
+  "plugins": [
+    {
+      "name": "crisp",
+      "description": "Verbosity dial 1-5 for prose, MR descriptions, and code comments. Lower says less. Always-on humanizer floor, safety never compressed.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
