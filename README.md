@@ -13,7 +13,13 @@
 
 Your agent writes a paragraph when you wanted a sentence. Crisp is a verbosity dial for Claude Code: one number from 1 to 5 that sets how much the agent writes across session prose, MR descriptions, and code comments.
 
-Lower says less. Default is 3. You change it per session, or per task, with `/crisp n`.
+Lower says less. Default is 3. You change it on the fly: per session with `/crisp n`, or for a single answer by naming the level in the prompt. Fewer tokens come out of this, but that is a byproduct. The point is control, dialed when you want it.
+
+```
+give me the crisp 2 version of how we fixed this to deploy on AL2023
+```
+
+That asks for one terse answer without touching your session level. The next prompt is back to wherever the dial was.
 
 ## The problem
 
@@ -110,6 +116,20 @@ Requires Node.
 ```
 
 If you would rather wire it by hand, register a `SessionStart` hook (`crisp-activate.js`) and a `UserPromptSubmit` hook (`crisp-tracker.js`) in `~/.claude/settings.json`. The plugin install does the same thing for you.
+
+## First, check your CLAUDE.md
+
+If your `CLAUDE.md` already tells the agent to be concise, brief, or terse, that language and Crisp are in the same lane and will pull against each other. Crisp is a live dial; a static "always be brief" line cannot move, so the two send mixed signals.
+
+Before you test drive Crisp, hand the conflict to your agent. Ask it to:
+
+> Read my CLAUDE.md and move any verbosity, brevity, or response-length rules into a backup file. Crisp owns that now. Leave everything else.
+
+Or, to keep the file intact:
+
+> Read my CLAUDE.md and soften any brevity or response-length rules so they do not conflict with a separate verbosity dial. Do not duplicate or override it.
+
+Then run a session with Crisp alone and see how the dial feels without a second voice arguing about length. Put the rules back if you decide you want them.
 
 ## How it works
 
