@@ -21,6 +21,30 @@ There is no single right verbosity. Drafting an MR description wants room to exp
 
 Crisp moves verbosity out of the instruction file and onto a knob you turn when the task changes.
 
+## Same question, two levels
+
+Prompt: "Explain how a token bucket rate limiter works, and when to choose it over a fixed-window limiter."
+
+At level 1:
+
+> A token bucket holds up to N tokens that refill at a steady rate; each request spends one, and when the bucket is empty requests are dropped or queued until tokens accrue. Choose it over a fixed-window limiter when you need to absorb short bursts while capping the long-run average, instead of the hard per-window cutoff that lets double the limit slip through across a window boundary.
+
+At level 5 the same answer keeps the mechanism, then adds the refill math, the boundary-burst failure case, distributed-state and clock-skew edge cases, and when each limiter is the wrong choice. Around 300 words instead of 70. Neither one hedges, signposts, or pads. The dial changed how much got said, not how it reads.
+
+## What the dial actually does to length
+
+Measured word counts for that prompt, one answer per level, humanizer floor on throughout:
+
+| Level | Words |
+|-------|------:|
+| 1 | 67 |
+| 2 | 70 |
+| 3 | 150 |
+| 4 | 230 |
+| 5 | 304 |
+
+Two honest notes. The counts are a single sample on one question, not a benchmark suite, so read them as the shape of the curve, not a guarantee. And levels 1 and 2 nearly tie here because the prompt has two parts ("how it works" and "when to choose it"), and a correct answer to both has a floor of about two sentences. On a single-part question the 1-to-2 gap opens up. Targets are soft for exactly this reason.
+
 ## The dial
 
 One axis, five stops. Each level has a soft target for how much prose a typical response carries. These are targets, not caps, so a genuinely complex answer can run longer when it has to. Code comments scale on the same axis.
@@ -98,7 +122,7 @@ If you would rather wire it by hand, register a `SessionStart` hook (`crisp-acti
 Three pieces, all hooks, no background process and no network calls:
 
 - **SessionStart hook** writes a flag file and injects the ruleset for the active level into the session.
-- **UserPromptSubmit hook** watches for `/crisp n` and updates the active level when you change it mid-session.
+- **UserPromptSubmit hook** does two jobs. On `/crisp n` it updates the flag and blocks the prompt, so the switch costs no model turn and no tokens, it is instant. On your next real prompt it re-injects the ruleset once, so a mid-session change takes effect without paying for a turn per switch. Other prompts pass through untouched.
 - **Statusline script** appends `[CRISP:n]` to your statusline. It chains with any statusline you already run through `CRISP_INNER_STATUSLINE`, so it adds to your setup rather than replacing it.
 
 The level lives in a flag file rather than in conversation history, which is why changing it takes effect immediately and survives across turns.
