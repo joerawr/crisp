@@ -1,69 +1,103 @@
 # Crisp, explained at level 4
 
-> Demo: level 4 is the default README's register. This file is a clone of
-> `README.md` so you can place it in the 1-5 series. Compare against the other
-> README_CRISP_*.md files to feel the taper.
+> Demo: level 4 is the default README's register, and this file is a clone of
+> `README.md` so it sits in the 1-5 series. The duplication is on purpose: if
+> the front page ever moves to level 3, swapping it is one `cp` away.
 
-A verbosity dial for Claude Code. One number, 1 to 5, sets how much the agent
-writes across session prose, MR descriptions, and code comments. Lower says
-less. Default is 3.
+Your agent writes a paragraph when you wanted a sentence. Crisp is a verbosity dial for Claude Code: one number from 1 to 5 that sets how much the agent writes across session prose, MR descriptions, and code comments.
 
-Crisp is not caveman. No broken grammar, no dropped articles. It stays a clear,
-articulate engineer at every level and says only what the reader needs.
+Lower says less. Default is 3. You change it per session, or per task, with `/crisp n`.
+
+## The problem
+
+There is no single right verbosity. Drafting an MR description wants room to explain. A quick status check wants one line. A static instruction file cannot know which one you are doing right now, so it picks an average and the agent drifts long against it. You can write "be concise" in fifty different ways and still get walls of text on a yes/no question.
+
+Crisp moves verbosity out of the instruction file and onto a knob you turn when the task changes.
 
 ## The dial
 
-| Lvl | Prose | ~lines | Code comments |
-|-----|-------|-------:|---------------|
-| 5 | Full reasoning: assumptions, risks, trade-offs, alternatives | ~40 | explain non-obvious why |
-| 4 | Same shape, hedges and restatement cut | ~16 | only where intent is unclear |
-| 3 | Answer first, reasoning only where it changes the decision (default) | ~9 | one or two lines, load-bearing |
-| 2 | Answer plus one line of why | ~4 | only when code cannot speak |
-| 1 | Answer only | ~2 | rare, surgical |
+One axis, five stops. Each level has a soft target for how much prose a typical response carries. These are targets, not caps, so a genuinely complex answer can run longer when it has to. Code comments scale on the same axis.
 
-The line counts are soft targets, not caps. A genuinely complex answer runs
-longer; a one-word answer runs shorter. The number sets the reflex for how much
-reasoning to surface.
+| Level | Style | Prose target |
+|-------|-------|--------------|
+| 5 | Full reasoning, nothing trimmed | ~40 lines |
+| 4 | Hedges and restatement cut | ~16 lines |
+| 3 | Answer first, then the load-bearing why (default) | ~9 lines |
+| 2 | Answer plus one reason | ~4 lines |
+| 1 | Answer only | ~2 lines |
 
-## Two layers below the dial, always on
+This README sits at level 4 on purpose. Choosing to adopt a tool is worth the fuller pitch, so the docs run long. The daily work that follows wants level 2 or 3. Write docs at 4, work at 2 or 3.
 
-**Humanizer floor** (every level, including 5): no em or en dashes, no rule of
-three, no AI-vocab clusters (delve, leverage, robust, seamless, underscore,
-tapestry), no signposting, no sycophancy, no negative parallelism. Vary rhythm,
-prefer concrete detail. Written clean the first pass, with no separate audit
-step that would add latency.
+## Two always-on layers
 
-**Safety carve-out** (overrides the dial, even at level 1): never compress
-security warnings, mandated inline edge-case or SECURITY-REVIEW comments,
-correctness caveats, or risk and blocker flags. Correctness outranks concision.
+The dial controls quantity. Two layers run underneath it and do not move with the number.
+
+### Humanizer floor
+
+Every level, including 5, strips the tells of machine prose. No em or en dashes. No rule of three. No AI-vocab clusters (delve, leverage, robust, seamless). No signposting, no sycophancy, no negative parallelism, no narrating its own process. Rhythm varies, detail stays concrete. The cleanup happens on the first pass, so there is no audit step and no added latency.
+
+This is not caveman shorthand. Every level reads as clean human English with intact grammar. Level 1 is short, not broken.
+
+### Safety carve-out
+
+Concision stops at correctness. The dial never compresses:
+
+- Security warnings
+- Mandated inline edge-case or `SECURITY-REVIEW` comments
+- Correctness caveats
+- Risk and blocker flags
+
+These survive at level 1 the same as at level 5. When brevity and correctness collide, correctness wins.
 
 ## Usage
 
-- `/crisp 1|2|3|4|5` sets the level for the session
-- `/crisp off`, `stop crisp`, or `normal mode` turns it off
-- Default is 3. Override with the `CRISP_DEFAULT_LEVEL` env var or
-  `~/.config/crisp/config.json`: `{ "defaultLevel": "2" }`
-- The statusline shows `[CRISP:n]`
+```
+/crisp 4        set the level for this session
+/crisp 2        drop to terse for the next stretch of work
+/crisp off      disable (also: "stop crisp", "normal mode")
+```
+
+The statusline shows the active level as `[CRISP:n]` so you always know where the dial sits.
+
+## Config
+
+Set a default so every session starts where you want it:
+
+```bash
+export CRISP_DEFAULT_LEVEL=2
+```
+
+Or in `~/.config/crisp/config.json`:
+
+```json
+{ "defaultLevel": "2" }
+```
+
+Absent either, the default is 3.
+
+## Install
+
+Requires Node.
+
+```
+/plugin marketplace add joerawr/crisp
+/plugin install crisp@crisp
+```
+
+If you would rather wire it by hand, register a `SessionStart` hook (`crisp-activate.js`) and a `UserPromptSubmit` hook (`crisp-tracker.js`) in `~/.claude/settings.json`. The plugin install does the same thing for you.
 
 ## How it works
 
-A SessionStart hook writes a flag file and injects the ruleset at the active
-level. A UserPromptSubmit hook watches for `/crisp n` and updates both. The
-statusline script appends the `[CRISP:n]` badge, and chains onto an existing
-statusline if you set `CRISP_INNER_STATUSLINE` to its command.
+Three pieces, all hooks, no background process and no network calls:
+
+- **SessionStart hook** writes a flag file and injects the ruleset for the active level into the session.
+- **UserPromptSubmit hook** watches for `/crisp n` and updates the active level when you change it mid-session.
+- **Statusline script** appends `[CRISP:n]` to your statusline. It chains with any statusline you already run through `CRISP_INNER_STATUSLINE`, so it adds to your setup rather than replacing it.
+
+The level lives in a flag file rather than in conversation history, which is why changing it takes effect immediately and survives across turns.
 
 ## Inspirations
 
-- [ponytail](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert,
-  for the hook architecture. Ponytail governs what you build; Crisp governs how
-  you talk about it.
-- [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee, for
-  brevity as a switchable, leveled mode, minus the broken-English persona.
-- [humanizer](https://github.com/blader/humanizer), based on Wikipedia's "Signs
-  of AI writing" guide, for the humanizer floor (minus its draft-audit loop).
-
-## Test
-
-```
-node test.js
-```
+- [ponytail](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert, for the hook architecture. The two pair cleanly: ponytail governs what you build, Crisp governs how you talk about it.
+- [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee, for treating brevity as a leveled, switchable mode. Crisp keeps the levels and drops the broken-English persona.
+- [humanizer](https://github.com/blader/humanizer), based on Wikipedia's "Signs of AI writing" guide, for the floor. Crisp folds it into the first pass instead of running a separate draft-audit-final loop.

@@ -1,56 +1,49 @@
 # Crisp, explained at level 5
 
 > Demo: this is the project explained as a level-5 (full reasoning) response
-> would read. Compare it against `README_CRISP_1.md` through `_4.md` to see the
-> taper. The real README is `README.md` (level 4).
+> would read. Full does not mean long for its own sake: this lands around 30
+> lines because that is what the reasoning needs, not to fill a quota. Compare
+> it against `README_CRISP_1.md` through `_4.md` to see the taper.
 
-Crisp is a verbosity dial for Claude Code. It exists because the default agent,
-even with a careful CLAUDE.md asking for concision, tends to drift long: it
-restates points, hedges, pads code comments to eight lines where two would do,
-and reaches for the same inflated vocabulary. A static instruction file cannot
-fix this reliably, because there is no single right verbosity. An architecture
-review wants full reasoning; a quick command lookup wants one line. What is
-missing is a knob you can turn per session.
+A verbosity dial for Claude Code. One number, 1 to 5, sets how much the agent writes across session prose, MR descriptions, and code comments. Lower says less. The default is 3.
 
-So Crisp is that knob: one number, 1 to 5, that sets how much the agent writes
-across three surfaces at once, session prose, merge request descriptions, and
-code comments. Lower says less. The default is 3, which leads with the answer
-and surfaces reasoning only where it changes a decision.
+## Why it exists
 
-The design separates two things that are usually tangled. The first is length,
-which the dial controls. The second is voice, which an always-on humanizer
-floor controls independently, so that even a long level-5 answer still avoids
-the tells of AI writing. The floor bans em and en dashes, the rule of three,
-AI-vocab clusters like "delve" and "leverage" and "robust", signposting such as
-"let's dive in", sycophantic openers, and negative parallelism. It asks for
-varied sentence rhythm and concrete detail. Unlike a cleanup skill, it runs in
-the first pass with no separate audit step, because added latency would defeat
-the point of an always-on tool.
+Coding agents drift verbose. You can write a CLAUDE.md that asks for concision and the agent will still restate your question back to you, hedge every claim, and grow a two-line comment into eight. A static file cannot fix this, because there is no single correct verbosity. A design review wants the full chain of reasoning so you can check it. A syntax lookup wants one line. A file that bakes in either setting is wrong half the time, and the agent cannot infer which half it is in. So the right unit of control is the session, not the file, and the right interface is a knob you turn.
 
-Sitting above both layers is a safety carve-out that overrides the dial at
-every level, including 1. Length is never allowed to compress away a security
-warning, a mandated inline edge-case comment, a correctness caveat, or a risk
-or blocker flag on a plan. If a low level would force one of those to be cut,
-the response runs longer instead. Correctness outranks concision.
+## Length and voice are different problems
 
-Crisp deliberately is not caveman. Caveman proved that brevity can be a
-switchable, leveled mode, but it pays for compression with broken grammar and a
-cave-dweller persona, which trades real communication for a joke. Crisp keeps
-the leveled brevity and stays in clean, articulate English.
+The insight the whole tool rests on: length and voice are separate axes, and conflating them is why "be concise" instructions fail. Telling an agent to write less makes it clip articles and drop the reasoning you wanted. Telling it to write well does nothing about length.
 
-Mechanically, it borrows ponytail's proven shape. A SessionStart hook writes a
-flag file and injects the ruleset at the active level. A UserPromptSubmit hook
-watches for `/crisp n`, updates the flag, and re-injects so the change takes
-effect the same turn. A statusline script appends a `[CRISP:n]` badge and can
-chain onto an existing statusline through the `CRISP_INNER_STATUSLINE` variable.
-The default level can be set with the `CRISP_DEFAULT_LEVEL` environment variable
-or a small JSON config file.
+So Crisp splits them. The dial controls length only. A separate humanizer floor, on at every level, controls voice. The payoff is that a long answer is still a clean answer. Level 5 gives you forty lines of real reasoning without the em dashes, the rule of three, the "delve" and "leverage" filler, or the sycophantic opener that usually come bundled with length. The floor runs in the first pass with no audit step after, because an always-on tool that taxed every turn with latency would not stay on.
+
+This is also why Crisp is not caveman. Caveman proved brevity can be a switchable, leveled mode, which is the idea Crisp keeps. It paid for compression with broken grammar and a persona, which trades communication for a bit. Crisp keeps the leveling and keeps clean English.
+
+## The dial
+
+| Lvl | Prose | ~lines | Code comments |
+| --- | --- | --- | --- |
+| 5 | full reasoning: assumptions, risks, trade-offs, alternatives | ~40 | explain the non-obvious why |
+| 4 | same shape, hedges and restatement cut | ~16 | only where intent is unclear |
+| 3 | answer first, reasoning where it changes the decision (default) | ~9 | one or two load-bearing lines |
+| 2 | answer plus one line of why | ~4 | only when code cannot speak for itself |
+| 1 | answer only | ~2 | rare, surgical |
+
+The line counts are soft targets, not caps. A genuinely hard answer at level 2 runs long; a one-word answer at level 5 stays short. The number sets a reflex for how much reasoning to surface, not a budget to spend.
+
+## Safety overrides the dial
+
+One rule sits above everything, including level 1: never compress a security warning, a mandated inline edge-case or SECURITY-REVIEW comment, a correctness caveat, or a risk or blocker flag. If a low level would force one of those out, the answer runs longer instead. Correctness outranks concision, and the dial does not get a vote.
+
+## Usage
+
+- `/crisp 1|2|3|4|5` sets the level for the session.
+- `/crisp off`, `stop crisp`, or `normal mode` turns it off.
+- Set the default with `CRISP_DEFAULT_LEVEL` or `~/.config/crisp/config.json`: `{ "defaultLevel": "2" }`.
+- The statusline shows `[CRISP:n]`.
 
 ## Inspirations
 
-- [ponytail](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert,
-  for the hook architecture and the build-time discipline Crisp pairs with.
-- [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee, for
-  the idea of brevity as a leveled, switchable mode.
-- [humanizer](https://github.com/blader/humanizer), based on Wikipedia's "Signs
-  of AI writing" guide, for the humanizer floor.
+- [ponytail](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert, for the hook architecture and the build-versus-talk split. Ponytail governs what you build; Crisp governs how you talk about it.
+- [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee, for brevity as a switchable, leveled mode, minus the persona.
+- [humanizer](https://github.com/blader/humanizer), built on Wikipedia's "Signs of AI writing" guide, for the floor, minus its draft-audit loop.

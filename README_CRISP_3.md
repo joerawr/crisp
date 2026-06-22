@@ -3,36 +3,37 @@
 > Demo: this is the project at level 3, the default. Answer first, reasoning
 > only where it changes a decision.
 
-A verbosity dial for Claude Code. One number, 1 to 5, sets how much the agent
-writes across prose, MR descriptions, and code comments. Lower says less.
-Default 3. It is not caveman: clean English at every level, no broken grammar.
+A verbosity dial for Claude Code. Pick a number 1 to 5 and the agent matches how much it writes to how much you want to read. This covers session prose, MR descriptions, and code comments. Default is 3.
+
+Lower says less. It stays clean human English at every level. Level 1 is terse, not caveman, so no dropped articles or broken grammar.
 
 ## The dial
 
-| Lvl | Prose | ~lines |
-|-----|-------|-------:|
-| 5 | full reasoning | ~40 |
-| 4 | hedges cut | ~16 |
-| 3 | answer first, reasoning where it changes the decision | ~9 |
-| 2 | answer plus one why | ~4 |
-| 1 | answer only | ~2 |
+| Level | Style | Soft target |
+|-------|-------|-------------|
+| 5 | Full reasoning, every step shown | ~40 lines |
+| 4 | Hedges and qualifiers cut | ~16 lines |
+| 3 | Answer first, then the why that matters (default) | ~9 lines |
+| 2 | Answer plus one reason | ~4 lines |
+| 1 | Answer only | ~2 lines |
 
-Counts are soft targets. Code comments scale the same way, from "explain the
-why" at 5 to "rare and surgical" at 1.
+Targets are soft, not caps. A real answer that needs more room gets more room. Code comments scale on the same curve.
 
-Two layers run under the dial at every level. A humanizer floor strips AI
-writing tells (no em dashes, no rule of three, no signposting or sycophancy). A
-safety carve-out keeps security warnings, correctness caveats, and risk flags
-from being compressed, even at level 1.
+Pick the level for the moment: 1 or 2 for flow-state edits where you want the payload, 3 for normal work, 4 or 5 for architecture and debugging where you want to check the reasoning.
+
+## Always-on floor
+
+Underneath the dial runs a humanizer that strips AI writing tells at every level: no em or en dashes, no rule of three, no AI-vocab clusters (delve, leverage, robust, seamless), no signposting, no sycophancy, no narrating its own process.
+
+One thing the dial never touches. Security warnings, correctness caveats, and risk flags survive at level 1. Brevity does not get to drop the warning that keeps you out of an outage.
 
 ## Usage
 
-- `/crisp 1|2|3|4|5`, or `/crisp off`
-- Default set by `CRISP_DEFAULT_LEVEL` or `~/.config/crisp/config.json`
+- `/crisp 1-5` set the level, `/crisp off` to stop (also "stop crisp", "normal mode")
+- Default via `CRISP_DEFAULT_LEVEL` env var or `~/.config/crisp/config.json`
 - Statusline shows `[CRISP:n]`
 
-A SessionStart hook injects the ruleset and writes a flag; a UserPromptSubmit
-hook tracks `/crisp n`.
+A SessionStart hook injects the ruleset and writes a flag; a UserPromptSubmit hook tracks `/crisp n`.
 
 ## Inspirations
 
