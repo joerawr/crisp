@@ -37,13 +37,15 @@ Crisp gives you back control with three core promises:
 
 At the heart of Crisp is the dial itself — five carefully calibrated levels, each with a soft target for how much the agent writes. Think of these as *targets*, not hard caps; the agent flexes intelligently around them based on what the moment genuinely requires.
 
-| Level | Style | Soft Target (session prose) |
-|:-----:|-------|:---------------------------:|
-| **5** | Full reasoning — the agent thinks out loud, step by step | ~40 lines |
-| **4** | Trimmed — hedges and filler removed, reasoning intact | ~16 lines |
-| **3** | Answer-first — lead with the conclusion, then justify *(default)* | ~9 lines |
-| **2** | Answer plus one line of *why* | ~4 lines |
-| **1** | Answer-only — the essential result, nothing more | ~2 lines |
+
+| Level | Style                                                             | Soft Target (session prose) |
+| ----- | ----------------------------------------------------------------- | --------------------------- |
+| **5** | Full reasoning — the agent thinks out loud, step by step          | ~40 lines                   |
+| **4** | Trimmed — hedges and filler removed, reasoning intact             | ~16 lines                   |
+| **3** | Answer-first — lead with the conclusion, then justify *(default)* | ~9 lines                    |
+| **2** | Answer plus one line of *why*                                     | ~4 lines                    |
+| **1** | Answer-only — the essential result, nothing more                  | ~2 lines                    |
+
 
 And here is the truly elegant part: **code comments scale on the very same dial.** Turn the verbosity down, and your inline commentary tightens right alongside your prose. Turn it up, and the agent will walk a future reader through the reasoning. One number, consistent behavior everywhere — it is a genuinely seamless experience.
 

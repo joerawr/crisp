@@ -2,33 +2,50 @@ const fs = require('fs');
 const path = require('path');
 const { getClaudeDir, normalizeLevel } = require('./crisp-config');
 
-const STATE_FILE = '.crisp-active';
-const PENDING_FILE = '.crisp-pending';
-const statePath = path.join(getClaudeDir(), STATE_FILE);
-const pendingPath = path.join(getClaudeDir(), PENDING_FILE);
+// Per-session flag files so concurrent terminals hold independent levels.
+// Falls back to a shared key when a hook gets no session_id (older CLI).
+const dir = getClaudeDir();
+const SHARED = 'shared';
 
-function setLevel(level) {
-  fs.mkdirSync(path.dirname(statePath), { recursive: true });
-  fs.writeFileSync(statePath, level);
+function safeSid(sessionId) {
+  // session_id is a uuid; strip anything not filename-safe just in case.
+  const s = String(sessionId || '').replace(/[^A-Za-z0-9_-]/g, '');
+  return s || SHARED;
 }
+function statePath(sid) { return path.join(dir, '.crisp-active-' + safeSid(sid)); }
+function pendingPath(sid) { return path.join(dir, '.crisp-pending-' + safeSid(sid)); }
 
-function clearLevel() {
-  try { fs.unlinkSync(statePath); } catch (e) {}
+function setLevel(sid, level) {
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(statePath(sid), level);
 }
+function clearLevel(sid) { try { fs.unlinkSync(statePath(sid)); } catch (e) {} }
 
-// Active level from the flag file, or null when off / unset.
-function readLevel() {
-  try { return normalizeLevel(fs.readFileSync(statePath, 'utf8')); } catch (e) { return null; }
+// Active level for this session, or null when off / unset.
+function readLevel(sid) {
+  try { return normalizeLevel(fs.readFileSync(statePath(sid), 'utf8')); } catch (e) { return null; }
 }
 
 // Pending marker: set when the level changes via a blocked command, so the next
 // real prompt re-injects the ruleset exactly once instead of every turn.
-function setPending() {
-  fs.mkdirSync(path.dirname(pendingPath), { recursive: true });
-  fs.writeFileSync(pendingPath, '1');
+function setPending(sid) {
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(pendingPath(sid), '1');
 }
-function clearPending() { try { fs.unlinkSync(pendingPath); } catch (e) {} }
-function isPending() { return fs.existsSync(pendingPath); }
+function clearPending(sid) { try { fs.unlinkSync(pendingPath(sid)); } catch (e) {} }
+function isPending(sid) { return fs.existsSync(pendingPath(sid)); }
+
+// Best-effort sweep of stale per-session flags (orphaned by crashes, since
+// SessionEnd is not guaranteed). Removes crisp flag files older than maxAgeMs.
+function sweepStale(maxAgeMs, now) {
+  try {
+    for (const f of fs.readdirSync(dir)) {
+      if (!/^\.crisp-(active|pending)-/.test(f)) continue;
+      const p = path.join(dir, f);
+      try { if (now - fs.statSync(p).mtimeMs > maxAgeMs) fs.unlinkSync(p); } catch (e) {}
+    }
+  } catch (e) {}
+}
 
 // Plain stdout on UserPromptSubmit/SessionStart is injected as additionalContext.
 function writeHookOutput(context = '') {
@@ -41,7 +58,8 @@ function writeBlock(reason) {
 }
 
 module.exports = {
+  statePath, pendingPath, safeSid,
   setLevel, clearLevel, readLevel,
-  setPending, clearPending, isPending,
+  setPending, clearPending, isPending, sweepStale,
   writeHookOutput, writeBlock,
 };

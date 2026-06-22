@@ -9,13 +9,15 @@ Lower says less. It stays clean human English at every level. Level 1 is terse, 
 
 ## The dial
 
-| Level | Style | Soft target |
-|-------|-------|-------------|
-| 5 | Full reasoning, every step shown | ~40 lines |
-| 4 | Hedges and qualifiers cut | ~16 lines |
-| 3 | Answer first, then the why that matters (default) | ~9 lines |
-| 2 | Answer plus one reason | ~4 lines |
-| 1 | Answer only | ~2 lines |
+
+| Level | Style                                             | Soft target |
+| ----- | ------------------------------------------------- | ----------- |
+| 5     | Full reasoning, every step shown                  | ~40 lines   |
+| 4     | Hedges and qualifiers cut                         | ~16 lines   |
+| 3     | Answer first, then the why that matters (default) | ~9 lines    |
+| 2     | Answer plus one reason                            | ~4 lines    |
+| 1     | Answer only                                       | ~2 lines    |
+
 
 Targets are soft, not caps. A real answer that needs more room gets more room. Code comments scale on the same curve.
 

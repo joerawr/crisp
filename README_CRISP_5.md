@@ -21,13 +21,15 @@ This is also why Crisp is not caveman. Caveman proved brevity can be a switchabl
 
 ## The dial
 
-| Lvl | Prose | ~lines | Code comments |
-| --- | --- | --- | --- |
-| 5 | full reasoning: assumptions, risks, trade-offs, alternatives | ~40 | explain the non-obvious why |
-| 4 | same shape, hedges and restatement cut | ~16 | only where intent is unclear |
-| 3 | answer first, reasoning where it changes the decision (default) | ~9 | one or two load-bearing lines |
-| 2 | answer plus one line of why | ~4 | only when code cannot speak for itself |
-| 1 | answer only | ~2 | rare, surgical |
+
+| Lvl | Prose                                                           | ~lines | Code comments                          |
+| --- | --------------------------------------------------------------- | ------ | -------------------------------------- |
+| 5   | full reasoning: assumptions, risks, trade-offs, alternatives    | ~40    | explain the non-obvious why            |
+| 4   | same shape, hedges and restatement cut                          | ~16    | only where intent is unclear           |
+| 3   | answer first, reasoning where it changes the decision (default) | ~9     | one or two load-bearing lines          |
+| 2   | answer plus one line of why                                     | ~4     | only when code cannot speak for itself |
+| 1   | answer only                                                     | ~2     | rare, surgical                         |
+
 
 The line counts are soft targets, not caps. A genuinely hard answer at level 2 runs long; a one-word answer at level 5 stays short. The number sets a reflex for how much reasoning to surface, not a budget to spend.
 

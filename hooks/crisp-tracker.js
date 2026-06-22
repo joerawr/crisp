@@ -22,6 +22,7 @@ process.stdin.on('data', c => { input += c; });
 process.stdin.on('end', () => {
   try {
     const data = JSON.parse(input.replace(/^﻿/, ''));
+    const sid = data.session_id || '';
     const prompt = (data.prompt || '').trim();
 
     // /crisp <n> or bare /crisp
@@ -29,12 +30,12 @@ process.stdin.on('end', () => {
       const arg = prompt.split(/\s+/)[1] || '';
       const level = normalizeLevel(arg) || getDefaultLevel(); // bare /crisp -> default
       if (level === 'off') {
-        clearLevel();
-        clearPending();
+        clearLevel(sid);
+        clearPending(sid);
         writeBlock('Crisp off. Normal verbosity restored.');
       } else {
-        setLevel(level);
-        setPending(); // next real prompt re-injects at the new level
+        setLevel(sid, level);
+        setPending(sid); // next real prompt re-injects at the new level
         writeBlock('Crisp level ' + level + '. Applies from your next message.');
       }
       return;
@@ -42,16 +43,16 @@ process.stdin.on('end', () => {
 
     // "stop crisp" / "normal mode" as a standalone command
     if (isDeactivationCommand(prompt)) {
-      clearLevel();
-      clearPending();
+      clearLevel(sid);
+      clearPending(sid);
       writeBlock('Crisp off. Normal verbosity restored.');
       return;
     }
 
     // Ordinary prompt: re-inject once if a switch is pending, then clear it.
-    if (isPending()) {
-      clearPending();
-      const level = readLevel();
+    if (isPending(sid)) {
+      clearPending(sid);
+      const level = readLevel(sid);
       if (level) writeHookOutput(getCrispInstructions(level));
     }
   } catch (e) {

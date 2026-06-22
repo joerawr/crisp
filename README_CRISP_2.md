@@ -8,13 +8,15 @@ Clean human English at every level. Level 1 is terse, not broken grammar.
 
 ## Dial
 
-| Level | Style | Prose target | Comments |
-|-------|-------|--------------|----------|
-| 5 | Full reasoning | ~40 lines | Full |
-| 4 | Hedges cut | ~16 lines | Trimmed |
-| 3 | Answer-first (default) | ~9 lines | Lean |
-| 2 | Answer plus one why | ~4 lines | Sparse |
-| 1 | Answer only | ~2 lines | Minimal |
+
+| Level | Style                  | Prose target | Comments |
+| ----- | ---------------------- | ------------ | -------- |
+| 5     | Full reasoning         | ~40 lines    | Full     |
+| 4     | Hedges cut             | ~16 lines    | Trimmed  |
+| 3     | Answer-first (default) | ~9 lines     | Lean     |
+| 2     | Answer plus one why    | ~4 lines     | Sparse   |
+| 1     | Answer only            | ~2 lines     | Minimal  |
+
 
 Targets are soft. Comments scale with prose.
 
@@ -41,3 +43,4 @@ A humanizer floor runs at every level and strips AI writing tells. A safety carv
 - ponytail: hook architecture.
 - caveman: leveled brevity, dropped the broken-English persona.
 - humanizer: the always-on floor.
+

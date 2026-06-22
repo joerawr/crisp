@@ -1,8 +1,7 @@
 # Crisp, explained at level 4
 
 > Demo: level 4 is the default README's register, and this file is a clone of
-> `README.md` so it sits in the 1-5 series. The duplication is on purpose: if
-> the front page ever moves to level 3, swapping it is one `cp` away.
+> `README.md` so it sits in the 1-5 series. This duplication is deliberate.
 
 Your agent writes a paragraph when you wanted a sentence. Crisp is a verbosity dial for Claude Code: one number from 1 to 5 that sets how much the agent writes across session prose, MR descriptions, and code comments.
 
