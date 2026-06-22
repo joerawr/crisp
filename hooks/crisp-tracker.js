@@ -1,10 +1,21 @@
 #!/usr/bin/env node
-// crisp -- UserPromptSubmit hook. Watches for /crisp <n> and the deactivation
-// command, updates the flag file, and confirms the change back to the model.
+// crisp -- UserPromptSubmit hook.
+//
+// On `/crisp <n>` (or off / "stop crisp" / "normal mode"): update the flag and
+// BLOCK the prompt. Blocking means no model turn and zero tokens -- the switch
+// is instant. A pending marker is set so the next real prompt re-injects the
+// ruleset once, which is how a mid-session change takes effect without paying a
+// full inference turn per switch.
+//
+// On any other prompt: if a switch is pending, inject the ruleset once and clear
+// the marker. Otherwise do nothing (the SessionStart injection still stands).
 
 const { getDefaultLevel, normalizeLevel, isDeactivationCommand } = require('./crisp-config');
 const { getCrispInstructions } = require('./crisp-instructions');
-const { setLevel, clearLevel, writeHookOutput } = require('./crisp-runtime');
+const {
+  setLevel, clearLevel, readLevel, setPending, clearPending, isPending,
+  writeHookOutput, writeBlock,
+} = require('./crisp-runtime');
 
 let input = '';
 process.stdin.on('data', c => { input += c; });
@@ -13,26 +24,37 @@ process.stdin.on('end', () => {
     const data = JSON.parse(input.replace(/^﻿/, ''));
     const prompt = (data.prompt || '').trim();
 
+    // /crisp <n> or bare /crisp
     if (/^[/@]crisp\b/i.test(prompt)) {
       const arg = prompt.split(/\s+/)[1] || '';
       const level = normalizeLevel(arg) || getDefaultLevel(); // bare /crisp -> default
-
       if (level === 'off') {
         clearLevel();
-        writeHookOutput('CRISP OFF -- normal verbosity restored.');
+        clearPending();
+        writeBlock('Crisp off. Normal verbosity restored.');
       } else {
         setLevel(level);
-        // Re-inject the ruleset at the new level so the change takes effect this turn.
-        writeHookOutput('CRISP LEVEL CHANGED -- now level ' + level + '.\n\n' + getCrispInstructions(level));
+        setPending(); // next real prompt re-injects at the new level
+        writeBlock('Crisp level ' + level + '. Applies from your next message.');
       }
       return;
     }
 
+    // "stop crisp" / "normal mode" as a standalone command
     if (isDeactivationCommand(prompt)) {
       clearLevel();
-      writeHookOutput('CRISP OFF -- normal verbosity restored.');
+      clearPending();
+      writeBlock('Crisp off. Normal verbosity restored.');
+      return;
+    }
+
+    // Ordinary prompt: re-inject once if a switch is pending, then clear it.
+    if (isPending()) {
+      clearPending();
+      const level = readLevel();
+      if (level) writeHookOutput(getCrispInstructions(level));
     }
   } catch (e) {
-    // Silent fail -- never block a prompt over level tracking
+    // Silent fail -- never block an ordinary prompt over level tracking
   }
 });
