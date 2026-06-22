@@ -1,5 +1,16 @@
 # Crisp
 
+```
+ ██████╗██████╗ ██╗███████╗██████╗
+██╔════╝██╔══██╗██║██╔════╝██╔══██╗
+██║     ██████╔╝██║███████╗██████╔╝
+██║     ██╔══██╗██║╚════██║██╔═══╝
+╚██████╗██║  ██║██║███████║██║
+ ╚═════╝╚═╝  ╚═╝╚═╝╚══════╝╚═╝
+
+      a verbosity dial for your agent
+```
+
 Your agent writes a paragraph when you wanted a sentence. Crisp is a verbosity dial for Claude Code: one number from 1 to 5 that sets how much the agent writes across session prose, MR descriptions, and code comments.
 
 Lower says less. Default is 3. You change it per session, or per task, with `/crisp n`.
