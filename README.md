@@ -139,7 +139,7 @@ Three pieces, all hooks, no background process and no network calls:
 - **UserPromptSubmit hook** does two jobs. On `/crisp n` it updates the flag and blocks the prompt, so the switch costs no model turn and no tokens, it is instant. On your next real prompt it re-injects the ruleset once, so a mid-session change takes effect without paying for a turn per switch. Other prompts pass through untouched.
 - **Statusline script** appends `[CRISP:n]` to your statusline. It chains with any statusline you already run through `CRISP_INNER_STATUSLINE`, so it adds to your setup rather than replacing it.
 
-The level lives in a flag file rather than in conversation history, which is why changing it takes effect immediately and survives across turns. The flag is keyed by session id (`.crisp-active-<id>`), so two terminals hold independent levels. A SessionEnd hook removes a session's flag on exit, and SessionStart sweeps any left behind by a crash.
+The level lives in a flag file rather than in conversation history, which is why changing it takes effect immediately and survives across turns. The flag is keyed by session id (`.crisp-active-<id>`), so two terminals hold independent levels.
 
 ## Inspirations
 

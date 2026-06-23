@@ -35,18 +35,6 @@ function setPending(sid) {
 function clearPending(sid) { try { fs.unlinkSync(pendingPath(sid)); } catch (e) {} }
 function isPending(sid) { return fs.existsSync(pendingPath(sid)); }
 
-// Best-effort sweep of stale per-session flags (orphaned by crashes, since
-// SessionEnd is not guaranteed). Removes crisp flag files older than maxAgeMs.
-function sweepStale(maxAgeMs, now) {
-  try {
-    for (const f of fs.readdirSync(dir)) {
-      if (!/^\.crisp-(active|pending)-/.test(f)) continue;
-      const p = path.join(dir, f);
-      try { if (now - fs.statSync(p).mtimeMs > maxAgeMs) fs.unlinkSync(p); } catch (e) {}
-    }
-  } catch (e) {}
-}
-
 // Plain stdout on UserPromptSubmit/SessionStart is injected as additionalContext.
 function writeHookOutput(context = '') {
   process.stdout.write(context);
@@ -60,6 +48,6 @@ function writeBlock(reason) {
 module.exports = {
   statePath, pendingPath, safeSid,
   setLevel, clearLevel, readLevel,
-  setPending, clearPending, isPending, sweepStale,
+  setPending, clearPending, isPending,
   writeHookOutput, writeBlock,
 };

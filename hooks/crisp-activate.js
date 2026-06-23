@@ -2,11 +2,10 @@
 // crisp -- SessionStart hook.
 //   1. Writes per-session flag file .crisp-active-<session_id> (statusline reads it)
 //   2. Emits the crisp ruleset at the active level as SessionStart context
-//   3. Sweeps stale flag files left by crashed sessions (SessionEnd is best-effort)
 
 const { getDefaultLevel } = require('./crisp-config');
 const { getCrispInstructions } = require('./crisp-instructions');
-const { setLevel, clearLevel, sweepStale, writeHookOutput } = require('./crisp-runtime');
+const { setLevel, clearLevel, writeHookOutput } = require('./crisp-runtime');
 
 let input = '';
 process.stdin.on('data', c => { input += c; });
@@ -14,10 +13,8 @@ process.stdin.on('end', () => {
   let sid = '';
   try { sid = JSON.parse(input.replace(/^﻿/, '')).session_id || ''; } catch (e) {}
 
-  // Sweep flags older than 24h. Orphans only; a live session rewrites its flag
-  // every turn so its mtime stays fresh.
-  sweepStale(24 * 60 * 60 * 1000, Date.now());
-
+  // ponytail: orphan flags are 1-byte and harmless (keyed by session id, never
+  // read by another session). No cleanup until they visibly pile up.
   const level = getDefaultLevel();
   if (level === 'off') {
     clearLevel(sid);
