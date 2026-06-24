@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-# Runs the smell gate before every push. Installed via:
-#   git config core.hooksPath .githooks
-# (see scripts/install-hooks.sh). Blocks the push on a deterministic internal-
-# reference hit; the semantic layer is advisory.
-exec "$(git rev-parse --show-toplevel)/scripts/smell-gate.sh"

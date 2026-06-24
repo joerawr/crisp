@@ -11,18 +11,10 @@ names, internal hostnames, project codenames, internal tooling, or real coworker
 identities, including paraphrased forms, and do not reference private repositories
 or local machine paths.
 
-## Before pushing
-
-A `pre-push` smell gate runs automatically (`core.hooksPath .githooks`, installed
-via `scripts/install-hooks.sh`). Two layers: a grep layer that hard-blocks
-sensitive tokens (the token list lives outside the repo), and a `claude -p`
-advisory layer for paraphrased leaks. After a fresh clone, run
-`bash scripts/install-hooks.sh` once. Do not bypass with `--no-verify`.
-
 ## Workflow
 
-Solo author cadence: committing to `main` is fine, the smell gate is the guard,
-not PR ceremony. Commit messages carry no AI attribution (authored as a human).
+Solo author cadence: committing to `main` is fine, no PR ceremony. Commit messages
+carry no AI attribution (authored as a human).
 
 ## Verify
 
