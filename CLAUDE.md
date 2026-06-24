@@ -9,9 +9,7 @@ tokens), a statusline shows `[CRISP:n]`. Pure Node hooks, zero npm deps.
 Treat everything here as shippable to the open internet. Never introduce employer
 names, internal hostnames, project codenames, internal tooling, or real coworker
 identities, including paraphrased forms, and do not reference private repositories
-or local machine paths. `README_CRISP_OFF.md` intentionally contains AI-tell prose
-(em dashes, emoji) as a demo; that is the one allowed style exception, and it must
-still carry zero internal references.
+or local machine paths.
 
 ## Before pushing
 

@@ -84,7 +84,7 @@ One axis, five stops. Each level has a soft target for how much prose a typical 
 | 2 | Crisper. Answer plus one reason | ~4 lines |
 | 1 | Crispest. Answer only | ~2 lines |
 
-This README sits at level 4 on purpose. Choosing to adopt a tool is worth the fuller pitch, so the docs run long. The daily work that follows wants level 2 or 3. Write docs at 4, work at 2 or 3. The `README_CRISP_1.md` through `README_CRISP_5.md` files show this same README rewritten at each level, and `README_CRISP_OFF.md` shows what the default agent produces with no dial at all.
+This README sits at level 4 on purpose. Choosing to adopt a tool is worth the fuller pitch, so the docs run long. The daily work that follows wants level 2 or 3. Write docs at 4, work at 2 or 3.
 
 ## Two always-on layers
 
