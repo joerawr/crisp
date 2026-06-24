@@ -46,7 +46,6 @@ function writeBlock(reason) {
 }
 
 module.exports = {
-  statePath, pendingPath, safeSid,
   setLevel, clearLevel, readLevel,
   setPending, clearPending, isPending,
   writeHookOutput, writeBlock,
