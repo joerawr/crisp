@@ -8,15 +8,15 @@
 ╚██████╗██║  ██║██║███████║██║
  ╚═════╝╚═╝  ╚═╝╚═╝╚══════╝╚═╝
 
-      a verbosity dial for your agent
+  a crispness dial for your agent
 ```
 
 Your agent writes a paragraph when you wanted a sentence. Crisp is a verbosity dial for Claude Code: one number from 1 to 5 that sets how much the agent writes across session prose, MR descriptions, and code comments.
 
-Lower says less. Default is 3. You change it on the fly: per session with `/crisp n`, or for a single answer by naming the level in the prompt. Fewer tokens come out of this, but that is a byproduct. The point is control, dialed when you want it.
+Lower says less. Change it on the fly, no context reload: a level per session with `/crisp n`, or a single answer at a named level by asking for it in the prompt. Fewer tokens are a byproduct. The real point is the dial, *crispest* to *fullest*, twisted where you want it.
 
 ```
-give me the crisp 2 version of how we fixed this to deploy on AL2023
+give me the crisp 2 summary of the fix we implemented in this session
 ```
 
 That asks for one terse answer without touching your session level. The next prompt is back to wherever the dial was.
@@ -25,31 +25,52 @@ That asks for one terse answer without touching your session level. The next pro
 
 There is no single right verbosity. Drafting an MR description wants room to explain. A quick status check wants one line. A static instruction file cannot know which one you are doing right now, so it picks an average and the agent drifts long against it. You can write "be concise" in fifty different ways and still get walls of text on a yes/no question.
 
-Crisp moves verbosity out of the instruction file and onto a knob you turn when the task changes.
+Crisp is the knob that dials in the crispness you want for the session, task, or documents.
 
-## Same question, two levels
+## The same question at different levels
 
-Prompt: "Explain how a token bucket rate limiter works, and when to choose it over a fixed-window limiter."
+Three prompts, each shown at level 1, then what level 5 adds on top.
+
+**"What is Claude Code?"**
 
 At level 1:
 
-> A token bucket holds up to N tokens that refill at a steady rate; each request spends one, and when the bucket is empty requests are dropped or queued until tokens accrue. Choose it over a fixed-window limiter when you need to absorb short bursts while capping the long-run average, instead of the hard per-window cutoff that lets double the limit slip through across a window boundary.
+> Claude Code is Anthropic's agentic coding tool, powered by the Claude models. It runs in a terminal CLI, a Mac/Windows desktop app, the web at claude.ai/code, and VS Code and JetBrains extensions. It reads and edits files, runs shell commands, uses tools, spawns subagents, and supports hooks, slash-command skills, and MCP servers, driving multi-step tasks from plain-language prompts.
 
-At level 5 the same answer keeps the mechanism, then adds the refill math, the boundary-burst failure case, distributed-state and clock-skew edge cases, and when each limiter is the wrong choice. Around 300 words instead of 70. Neither one hedges, signposts, or pads. The dial changed how much got said, not how it reads.
+At level 5 the same answer keeps that, then adds what it does on a task in more detail, the model family it runs on, and when reaching for an agent beats a single prompt. 58 words at level 1, 259 at level 5.
 
-## What the dial actually does to length
+**"TL;DR of Karpathy's LLM Wiki"**
 
-Measured word counts for that prompt, one answer per level, humanizer floor on throughout:
+At level 1:
 
-| Level | Words |
+> Karpathy's LLM Wiki has an LLM build and maintain a persistent, linked markdown wiki from your sources, instead of re-retrieving raw documents per query the way classic RAG does. Knowledge compounds: each source is synthesized once and kept current, and the LLM handles the cross-referencing and upkeep, so maintenance cost is near zero.
+
+At level 5 the same answer keeps that, then adds the three-layer architecture (immutable raw sources, the LLM-generated wiki, a schema doc that governs structure), the operations (ingest, query, lint for contradictions and gaps), the `index.md` and `log.md` navigation files, optional Obsidian and CLI tooling, and the thesis that the human directs the analysis while the LLM does the bookkeeping. 53 words at level 1, 265 at level 5.
+
+**"Explain input tokens vs output tokens and how cache reads affect my api bill"**
+
+At level 1:
+
+> Input tokens are everything you send: system prompt, conversation history, tool definitions, and the user's question. Output tokens are what the model generates back. Output costs more per token: Claude Opus 4.8 is $5 per million input and $25 per million output.
+>
+> Prompt caching matches a prefix. A cache read on that prefix bills at about 0.1x the normal input rate; in the usage object it shows as `cache_read_input_tokens`, while `input_tokens` is the uncached remainder at full price. Writing the cache costs about 1.25x input (5-minute TTL) or 2x (1-hour TTL). Any byte change in the cached prefix invalidates it, and you pay full price again.
+
+At level 5 the same answer keeps that, then adds worked cost math, the prefix-placement rules that keep the cache warm, the silent invalidators to watch for, and how to confirm hits in the `usage` fields. Here is that prompt measured at every level, plus `off` for no dial at all:
+
+| Crisp | Words |
 |-------|------:|
-| 1 | 67 |
-| 2 | 70 |
-| 3 | 150 |
-| 4 | 230 |
-| 5 | 304 |
+| 1 | 106 |
+| 2 | 126 |
+| 3 | 231 |
+| 4 | 272 |
+| 5 | 500 |
+| off | 335 |
 
-Two honest notes. The counts are a single sample on one question, not a benchmark suite, so read them as the shape of the curve, not a guarantee. And levels 1 and 2 nearly tie here because the prompt has two parts ("how it works" and "when to choose it"), and a correct answer to both has a floor of about two sentences. On a single-part question the 1-to-2 gap opens up. Targets are soft for exactly this reason.
+One run per level, humanizer floor on throughout. For this file the curve climbs the whole way. Level 5 runs longer than off because off is just the model's default length, while level 5 surfaces every assumption and edge case, so the verbose end of the dial says more than no dial at all.
+
+There is a quality gap too. The off answers here leaked em and en dashes, the machine-prose tell the floor strips, while every level-5 answer stayed crisp and clean. The floor runs at every level, so even the most verbose setting reads cleaner than no dial at all. Length is what the dial moves; the floor is what stays fixed under it.
+
+Single sample, soft targets, not a benchmark suite.
 
 ## The dial
 
@@ -57,34 +78,34 @@ One axis, five stops. Each level has a soft target for how much prose a typical 
 
 | Level | Style | Prose target |
 |-------|-------|--------------|
-| 5 | Full reasoning, nothing trimmed | ~40 lines |
-| 4 | Hedges and restatement cut | ~16 lines |
-| 3 | Answer first, then the load-bearing why (default) | ~9 lines |
-| 2 | Answer plus one reason | ~4 lines |
-| 1 | Answer only | ~2 lines |
+| 5 | Full. Full reasoning, nothing trimmed | ~40 lines |
+| 4 | Fuller. Hedges and restatement cut | ~16 lines |
+| 3 | Crisp. Answer first, then the load-bearing why | ~9 lines |
+| 2 | Crisper. Answer plus one reason | ~4 lines |
+| 1 | Crispest. Answer only | ~2 lines |
 
 This README sits at level 4 on purpose. Choosing to adopt a tool is worth the fuller pitch, so the docs run long. The daily work that follows wants level 2 or 3. Write docs at 4, work at 2 or 3. The `README_CRISP_1.md` through `README_CRISP_5.md` files show this same README rewritten at each level, and `README_CRISP_OFF.md` shows what the default agent produces with no dial at all.
 
 ## Two always-on layers
 
-The dial controls quantity. Two layers run underneath it and do not move with the number.
+The dial sets how crisp; the floor keeps it clean. Two layers run underneath it and do not move with the number.
 
 ### Humanizer floor
 
-Every level, including 5, strips the tells of machine prose. No em or en dashes. No rule of three. No AI-vocab clusters (delve, leverage, robust, seamless). No signposting, no sycophancy, no negative parallelism, no narrating its own process. Rhythm varies, detail stays concrete. The cleanup happens on the first pass, so there is no audit step and no added latency.
+Every level, including 5, reads crisp. The floor strips the tells of machine prose. No em or en dashes. No rule of three. No AI-vocab clusters (delve, leverage, robust, seamless). No signposting, no sycophancy, no negative parallelism, no narrating its own process. Rhythm varies, detail stays concrete. The cleanup happens on the first pass, so there is no audit step and no added latency.
 
-This is not caveman shorthand. Every level reads as clean human English with intact grammar. Level 1 is short, not broken.
+This is not caveman shorthand. Every level is crisp and clean human English, with intact grammar. Level 1 is short, not broken.
 
 ### Safety carve-out
 
-Concision stops at correctness. The dial never compresses:
+Brevity stops at correctness. The dial never compresses:
 
 - Security warnings
 - Mandated inline edge-case or `SECURITY-REVIEW` comments
 - Correctness caveats
 - Risk and blocker flags
 
-These survive at level 1 the same as at level 5. When brevity and correctness collide, correctness wins.
+These survive at level 1 the same as at level 5. When brevity and correctness collide, correctness wins. This is also where a low level can run longer than its target: when you see more lines than you expected at level 1 or 2, that is the agent judging those lines essential to keep the answer correct, not the dial drifting.
 
 ## Usage
 
@@ -115,8 +136,6 @@ Requires Node.
 /plugin install crisp@crisp
 ```
 
-If you would rather wire it by hand, register a `SessionStart` hook (`crisp-activate.js`) and a `UserPromptSubmit` hook (`crisp-tracker.js`) in `~/.claude/settings.json`. The plugin install does the same thing for you.
-
 ## First, check your CLAUDE.md
 
 If your `CLAUDE.md` already tells the agent to be concise, brief, or terse, that language and Crisp are in the same lane and will pull against each other. Crisp is a live dial; a static "always be brief" line cannot move, so the two send mixed signals.
@@ -124,10 +143,6 @@ If your `CLAUDE.md` already tells the agent to be concise, brief, or terse, that
 Before you test drive Crisp, hand the conflict to your agent. Ask it to:
 
 > Read my CLAUDE.md and move any verbosity, brevity, or response-length rules into a backup file. Crisp owns that now. Leave everything else.
-
-Or, to keep the file intact:
-
-> Read my CLAUDE.md and soften any brevity or response-length rules so they do not conflict with a separate verbosity dial. Do not duplicate or override it.
 
 Then run a session with Crisp alone and see how the dial feels without a second voice arguing about length. Put the rules back if you decide you want them.
 
@@ -144,14 +159,8 @@ The level lives in a flag file rather than in conversation history, which is why
 ## Inspirations
 
 - [ponytail](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert, for the hook architecture. The two pair cleanly: ponytail governs what you build, Crisp governs how you talk about it.
-- [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee, for treating brevity as a leveled, switchable mode. Crisp keeps the levels and drops the broken-English persona.
+- [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee, for treating brevity as a leveled, switchable mode. Crisp keeps the levels and drops the broken-English persona for clean, crisp output.
 - [humanizer](https://github.com/blader/humanizer), based on Wikipedia's "Signs of AI writing" guide, for the floor. Crisp folds it into the first pass instead of running a separate draft-audit-final loop.
-
-## Test
-
-```
-node test.js
-```
 
 ## License
 
