@@ -115,7 +115,7 @@ These survive at level 1 the same as at level 5. When brevity and correctness co
 /crisp off      disable (also: "stop crisp", "normal mode")
 ```
 
-The statusline shows the active level as `[CRISP:n]` so you always know where the dial sits.
+With the optional statusline wired up (see Install), an `[CRISP:n]` badge shows the active level so you always know where the dial sits.
 
 ## Config
 
@@ -129,12 +129,32 @@ Absent that, the default is 3.
 
 ## Install
 
-Requires Node.
+Requires Node. The optional statusline badge also needs Python 3.
 
 ```
 /plugin marketplace add joerawr/crisp
 /plugin install crisp@crisp
 ```
+
+### Statusline badge (optional)
+
+Installing the plugin wires the hooks but not the statusline. Claude Code allows
+only one `statusLine` command, so Crisp will not claim it for you. To show the
+`[CRISP:n]` badge, point `statusLine` at the bundled script in your settings:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/plugins/cache/crisp/crisp/<version>/hooks/crisp-statusline.sh"
+  }
+}
+```
+
+Replace `<version>` with the installed version (`claude plugin list` shows it).
+If you already run a statusline, chain it instead of replacing it: set
+`CRISP_INNER_STATUSLINE` to your existing command and the script forwards the
+session JSON to it first, then appends the badge.
 
 ## First, check your CLAUDE.md
 
@@ -152,7 +172,7 @@ Three pieces, all hooks, no background process and no network calls:
 
 - **SessionStart hook** writes a flag file and injects the ruleset for the active level into the session.
 - **UserPromptSubmit hook** does two jobs. On `/crisp n` it updates the flag and blocks the prompt, so the switch costs no model turn and no tokens, it is instant. On your next real prompt it re-injects the ruleset once, so a mid-session change takes effect without paying for a turn per switch. Other prompts pass through untouched.
-- **Statusline script** appends `[CRISP:n]` to your statusline. It chains with any statusline you already run through `CRISP_INNER_STATUSLINE`, so it adds to your setup rather than replacing it.
+- **Statusline script** (optional, wired by hand) appends `[CRISP:n]` to your statusline. It chains with any statusline you already run through `CRISP_INNER_STATUSLINE`, so it adds to your setup rather than replacing it.
 
 The level lives in a flag file rather than in conversation history, which is why changing it takes effect immediately and survives across turns. The flag is keyed by session id (`.crisp-active-<id>`), so two terminals hold independent levels.
 
