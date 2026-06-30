@@ -73,5 +73,39 @@ JSON.parse(runTracker('/crisp off', SID));
 assert.ok(!fs.existsSync(flag), 'off clears session A flag');
 assert.ok(fs.existsSync(path.join(TMP, '.crisp-active-' + SID2)), 'session B flag untouched by A off');
 
+// --- activate hook: SessionStart resets on fresh start, preserves on compact/resume ---
+function runActivate(sid, source) {
+  return execFileSync('node', [path.join(__dirname, 'hooks', 'crisp-activate.js')], {
+    input: JSON.stringify({ session_id: sid, source }),
+    env: { ...process.env, CLAUDE_CONFIG_DIR: TMP },
+    encoding: 'utf8',
+  });
+}
+const ASID = 'sess-compact';
+const aflag = path.join(TMP, '.crisp-active-' + ASID);
+
+// startup resets to default and injects
+const a1 = runActivate(ASID, 'startup');
+assert.strictEqual(fs.readFileSync(aflag, 'utf8'), '3', 'startup writes the default level');
+assert.ok(a1.includes('CRISP ACTIVE -- level: 3'), 'startup injects the ruleset');
+
+// user switches to 1, then compaction must NOT revert to default
+runTracker('/crisp 1', ASID);
+const a2 = runActivate(ASID, 'compact');
+assert.strictEqual(fs.readFileSync(aflag, 'utf8'), '1', 'compact preserves the user-set level');
+assert.ok(a2.includes('CRISP ACTIVE -- level: 1'), 'compact reinjects at the preserved level');
+
+// off, then compaction must NOT resurrect crisp
+runTracker('/crisp off', ASID);
+assert.ok(!fs.existsSync(aflag), 'off clears the flag');
+const a3 = runActivate(ASID, 'compact');
+assert.ok(!fs.existsSync(aflag), 'compact after off does not re-enable crisp');
+assert.strictEqual(a3.trim(), '', 'compact after off injects nothing');
+
+// resume preserves whatever is on disk, same as compact
+runTracker('/crisp 4', ASID);
+const a4 = runActivate(ASID, 'resume');
+assert.ok(a4.includes('CRISP ACTIVE -- level: 4'), 'resume preserves the level');
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log('crisp: all checks passed');
