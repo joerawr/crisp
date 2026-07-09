@@ -32,11 +32,11 @@ process.stdin.on('end', () => {
       if (level === 'off') {
         clearLevel(sid);
         clearPending(sid);
-        writeBlock('Crisp off. Normal verbosity restored.');
+        writeBlock('Crisp off. Normal verbosity restored. ("Blocked by hook" is expected: the switch is handled by the hook, no tokens spent.)');
       } else {
         setLevel(sid, level);
         setPending(sid); // next real prompt re-injects at the new level
-        writeBlock('Crisp level ' + level + '. Applies from your next message.');
+        writeBlock('Crisp set to level ' + level + '. Applies from your next message. ("Blocked by hook" is expected: the switch is handled by the hook, no tokens spent.)');
       }
       return;
     }
@@ -45,7 +45,7 @@ process.stdin.on('end', () => {
     if (isDeactivationCommand(prompt)) {
       clearLevel(sid);
       clearPending(sid);
-      writeBlock('Crisp off. Normal verbosity restored.');
+      writeBlock('Crisp off. Normal verbosity restored. ("Blocked by hook" is expected: the switch is handled by the hook, no tokens spent.)');
       return;
     }
 
